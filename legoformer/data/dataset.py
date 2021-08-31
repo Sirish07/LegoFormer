@@ -70,13 +70,13 @@ class ShapeNetDataset(torch.utils.data.dataset.Dataset):
         :return: A set of images, GT volume and sample info
         """
         idx = idx % self.real_size
-        taxonomy_name, sample_name, images, volume = self.get_datum(idx)
+        images = self.get_datum(idx)
 
         if self.transforms:
             # Apply pre-processing to the images
             images = self.transforms(images)
 
-        return images, volume, (taxonomy_name, sample_name)
+        return images
 
     def get_datum(self, idx: int) -> Tuple[str, str, np.ndarray, np.ndarray]:
         """
@@ -86,22 +86,12 @@ class ShapeNetDataset(torch.utils.data.dataset.Dataset):
         """
         # Grab the sample info and paths
         sample                  = self.file_list[idx]
-        taxonomy_name           = sample['taxonomy_name']       # string, like '02691156'
-        sample_name             = sample['sample_name']         # string, like '6c432109eee42aed3b053f623496d8f5'
-        all_image_paths         = sample['image_paths']
-        volume_path             = sample['volume']
 
         # Select images to use
-        selected_image_paths = self.select_images(self.selection_mode, all_image_paths, self.n_views)
-
         # Read RGB Images
-        images = [self.read_img(image_path) for image_path in selected_image_paths]
+        images = self.read_img(sample)
         images = np.asarray(images)  # images.shape => [N_VIEWS, H (137), W(137), C (4)]
-
-        # Read 3D GT Volume
-        volume = self.read_volume(volume_path)  # volume.shape => [N_VOX (32), N_VOX (32), N_VOX (32)]
-
-        return taxonomy_name, sample_name, images, volume
+        return images
 
     def build_file_list(self, cfg: DictConfig, dataset_type):
         """
@@ -111,31 +101,32 @@ class ShapeNetDataset(torch.utils.data.dataset.Dataset):
         :return: List of all files
         """
         # Grab image and volume paths
-        taxonomy_path                   = cfg.taxonomy_path
-        image_path_template             = cfg.image_path
-        volume_path_template            = cfg.voxel_path
+        # taxonomy_path                   = cfg.taxonomy_path
+        # image_path_template             = cfg.image_path
+        # volume_path_template            = cfg.voxel_path
 
         # Load all taxonomies of the dataset
-        with open(taxonomy_path, encoding='utf-8') as file:
-            dataset_taxonomy = json.loads(file.read())
+        # with open(taxonomy_path, encoding='utf-8') as file:
+        #     dataset_taxonomy = json.loads(file.read())
 
-        files = []
+        # files = []
 
-        # Load data for each category
-        for taxonomy in dataset_taxonomy:
-            # Command-line update
-            self.log_taxonomy_loading(taxonomy, dataset_type)
+        # # Load data for each category
+        # for taxonomy in dataset_taxonomy:
+        #     # Command-line update
+        #     self.log_taxonomy_loading(taxonomy, dataset_type)
 
-            # Get a list of files for a single category
-            taxonomy_id     = taxonomy['taxonomy_id']
-            samples         = taxonomy[dataset_type]
-            taxonomy_files  = self.get_files_of_taxonomy(taxonomy_id, samples,
-                                                         image_path_template, volume_path_template)
+        #     # Get a list of files for a single category
+        #     taxonomy_id     = taxonomy['taxonomy_id']
+        #     samples         = taxonomy[dataset_type]
+        #     taxonomy_files  = self.get_files_of_taxonomy(taxonomy_id, samples,
+        #                                                  image_path_template, volume_path_template)
 
-            # Combine category-level file list to the overall list
-            files.extend(taxonomy_files)
+        #     # Combine category-level file list to the overall list
+        #     files.extend(taxonomy_files)
 
-        print('[INFO] %s Complete collecting files of the dataset. Total files: %d.' % (dt.now(), len(files)))
+        # print('[INFO] %s Complete collecting files of the dataset. Total files: %d.' % (dt.now(), len(files)))
+        files = ['/content/LegoFormer/aero2.png']
         return files
 
     @staticmethod
