@@ -75,7 +75,7 @@ class LegoFormer(BaseModel):
         # extract batch
         # image.shape => [B, N, 3, H (224), W (224)]
         # gt_volume.shape => [B, 32, 32, 32]
-        image, gt_volume, info = batch
+        image = batch
 
         # images => decomposition factors
         output = self.forward(image)  # output is a dict
@@ -84,11 +84,12 @@ class LegoFormer(BaseModel):
         # pred_volume.shape => [B, 32, 32, 32]
         pred_volume = self.aggregate(output)
 
-        loss = self.calculate_loss(pred_volume, gt_volume)
+        
+        # loss = self.calculate_loss(pred_volume, gt_volume)
 
-        # Log loss & metrics (IoU + F1_score). F1_score will be logged only if tag=='test'
-        self.log_scalar(f'loss/{tag}', loss)
-        self.log_metrics(pred_volume, gt_volume, tag)
+        # # Log loss & metrics (IoU + F1_score). F1_score will be logged only if tag=='test'
+        # self.log_scalar(f'loss/{tag}', loss)
+        # self.log_metrics(pred_volume, gt_volume, tag)
         return loss
 
     def forward(self, images):
