@@ -6,7 +6,9 @@ import mcubes
 import math
 import torch
 from omegaconf import OmegaConf, DictConfig
-
+import matplotlib.pyplot as plt
+import cv2
+from mpl_toolkits.mplot3d import Axes3D
 
 def voxel_grid_to_mesh(vox_grid: np.array) -> open3d.geometry.TriangleMesh:
     """
@@ -113,3 +115,20 @@ def load_config(cfg_path: str) -> DictConfig:
     base_cfg = OmegaConf.load('legoformer/config/base_config.yaml')
     curr_cfg = OmegaConf.load(cfg_path)
     return OmegaConf.merge(base_cfg, curr_cfg)
+
+
+def get_volume_views(volume, save_dir):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    volume = volume.squeeze().__ge__(0.5)
+    fig = plt.figure()
+    ax = fig.gca(projection=Axes3D.name)
+    # ax.set_aspect('equal')
+    volume = np.swapaxes(volume, 2, 1)
+    ax.voxels(volume, edgecolor="k")
+
+    save_path = os.path.join(save_dir, 'voxels-%06d.png' % n_itr)
+    plt.savefig(save_path, bbox_inches='tight')
+    plt.close()
+    return cv2.imread(save_path)

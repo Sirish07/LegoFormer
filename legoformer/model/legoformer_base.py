@@ -5,7 +5,7 @@ import torch.nn as nn
 from legoformer.model.base import BaseModel
 from legoformer.model.transformer import Transformer
 from legoformer.model.output import OutputLayer
-
+from legoformer.util.utils import get_volume_views
 
 class LegoFormer(BaseModel):
     """
@@ -84,13 +84,14 @@ class LegoFormer(BaseModel):
         # pred_volume.shape => [B, 32, 32, 32]
         pred_volume = self.aggregate(output)
 
-        
+
         # loss = self.calculate_loss(pred_volume, gt_volume)
 
         # # Log loss & metrics (IoU + F1_score). F1_score will be logged only if tag=='test'
         # self.log_scalar(f'loss/{tag}', loss)
         # self.log_metrics(pred_volume, gt_volume, tag)
-        return loss
+        _ = get_volume_views(pred_volume, "./Results")
+        return pred_volume
 
     def forward(self, images):
         """
