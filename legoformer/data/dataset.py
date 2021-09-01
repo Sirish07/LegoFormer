@@ -90,7 +90,7 @@ class ShapeNetDataset(torch.utils.data.dataset.Dataset):
         # Select images to use
         # Read RGB Images
         images = self.read_img(sample)
-        images = np.asarray(images)  # images.shape => [N_VIEWS, H (137), W(137), C (4)]
+        images = np.array([images])  # images.shape => [N_VIEWS, H (137), W(137), C (4)]
         return images
 
     def build_file_list(self, cfg: DictConfig, dataset_type):
