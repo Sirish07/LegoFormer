@@ -128,7 +128,7 @@ def get_volume_views(volume, save_dir):
     volume = np.swapaxes(volume, 2, 1)
     ax.voxels(volume, edgecolor="k")
 
-    save_path = os.path.join(save_dir, 'voxels-%06d.png' % n_itr)
+    save_path = os.path.join(save_dir, 'voxels.png')
     plt.savefig(save_path, bbox_inches='tight')
     plt.close()
     return cv2.imread(save_path)
